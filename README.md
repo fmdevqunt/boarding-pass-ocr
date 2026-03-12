@@ -79,102 +79,110 @@ An end‑to‑end system that parses boarding passes using OCR and AI, then reco
 ### 1. Clone the repository
 ```bash
 git clone https://github.com/your-username/boarding-pass-advisor.git
-cd boarding-pass-advisor```
-2. Set up a virtual environment (recommended)
+cd boarding-pass-advisor
+```
+### 2. Set up a virtual environment (recommended)
 ```bash
 python -m venv venv
 source venv/bin/activate      # macOS/Linux
 # venv\Scripts\activate       # Windows
 ```
-3. Install backend dependencies
+### 3. Install backend dependencies
 ```bash
 cd backend
 pip install -r requirements.txt
 ```
-backend/requirements.txt:
-```
-
-4. Install frontend dependencies
+### 4. Install frontend dependencies
 ```bash
 cd ../ui
-pip install -r requirements.txt```
+pip install -r requirements.txt
+```
 
-5. Install scraper dependencies (optional)
+### 5. Install scraper dependencies (optional)
 ```bash
 cd ../pp_scraper
 pip install -r requirements.txt
 ```
 
-⚙️ Configuration
+## ⚙️ Configuration
 Create a .env file in the backend/ directory (or export the variables in your shell):
-
-bash
+```bash
 GOOGLE_APPLICATION_CREDENTIALS="/path/to/your-service-account-key.json"
 GOOGLE_API_KEY="your-gemini-api-key"      # only if using direct Gemini API
 GCP_PROJECT="your-project-id"
 BQ_DATASET="prioritypass"
 BQ_LOUNGES_TABLE="selected_countries_lounges"
 ocr_confidence_threshold=0.7
-Variable	Description
-GOOGLE_APPLICATION_CREDENTIALS	Path to service account JSON
-GCP_PROJECT	Google Cloud project ID
-BQ_DATASET	BigQuery dataset name
-BQ_LOUNGES_TABLE	BigQuery table name
-GOOGLE_API_KEY	Gemini API key (if using direct Gemini)
-ocr_confidence_threshold	Minimum confidence to skip manual edit
-🚀 Running the Application
-Start the FastAPI backend
-bash
+```
+### Variable	Description
+  - **GOOGLE_APPLICATION_CREDENTIALS:**	Path to service account JSON
+  
+  - **GCP_PROJECT:**	Google Cloud project ID
+  
+  - **BQ_DATASET:**	BigQuery dataset name
+  
+  - **BQ_LOUNGES_TABLE:**	BigQuery table name
+  
+  - **GOOGLE_API_KEY:**	Gemini API key (if using direct Gemini)
+  
+  - **ocr_confidence_threshold:**	Minimum confidence to skip manual edit
+
+## 🚀 Running the Application
+### Start the FastAPI backend
+```bash
 cd backend
 uvicorn app.main:app --reload
-API available at http://localhost:8000. Interactive docs at http://localhost:8000/docs.
+```
+**API** available at http://localhost:8000. Interactive docs at http://localhost:8000/docs.
 
-Start the Streamlit frontend
-bash
+### Start the Streamlit frontend
+```bash
 cd ui
 streamlit run streamlit_app1.py
-Open your browser at http://localhost:8501.
+```
+- Open your browser at http://localhost:8501.
 
-🧪 Using the Application
-Upload a boarding pass image (JPEG/PNG) using the file uploader.
+## 🧪 Using the Application
 
-Click Parse – the backend (dummy /parse endpoint) returns sample data. Replace with your actual OCR + Gemini parsing logic.
+- Upload a boarding pass image (JPEG/PNG) using the file uploader.
 
-Review the parsed information. If OCR confidence is low, a warning appears and you can edit fields.
+- Click Parse – the backend (dummy /parse endpoint) returns sample data. Replace with your actual OCR + Gemini parsing logic.
 
-Click Recommend to get lounge recommendations. The system:
+- Review the parsed information. If OCR confidence is low, a warning appears and you can edit fields.
 
-Determines the time window (current time → boarding/departure)
+- Click Recommend to get lounge recommendations. The system:
 
-Filters lounges that are fully open during that window
-
-Ranks by terminal (exact match first, then mapped/inferred)
+   - Determines the time window (current time → boarding/departure)
+   
+   - Filters lounges that are fully open during that window
+  
+   - Ranks by terminal (exact match first, then mapped/inferred)
 
 Generates a human‑readable advisory with destination context
 
-View the advisory, list of recommended lounges, and destination information.
+- View the advisory, list of recommended lounges, and destination information.
 
-🕷️ Scraper Module (pp_scraper)
+## 🕷️ Scraper Module (pp_scraper)
 Collects Priority Pass airport/lounge data and uploads to BigQuery.
 
-Available Scripts
+### Available Scripts
 Script	Description
-lounge_ds2.py	Uses Selenium to extract the full airport list and lounge details, saves to selected_countries_lounges.json.
-upload_to_bigquery.py	Reads the JSON file and loads it into BigQuery, creating the table with nested schema if needed.
+- **lounge_ds2.py**	Uses Selenium to extract the full airport list and lounge details, saves to selected_countries_lounges.json.
+- **upload_to_bigquery.py**	Reads the JSON file and loads it into BigQuery, creating the table with nested schema if needed.
 Running the Scraper
-bash
+```bash
 cd pp_scraper
 python lounge_ds2.py
 python upload_to_bigquery.py
-📌 Important Notes
+```
+## 📌 Important Notes
+
 Dummy /parse endpoint: The current /parse returns hard‑coded sample data (JFK/LHR). Replace it with real OCR + Gemini parsing in main.py.
 
-Gemini model: If gemini-2.5-pro is not available, use gemini-1.5-pro or gemini-2.0-flash.
-
-API key errors: 401 UNAUTHENTICATED often means the API key is bound to a disabled service account. Create a new unbound API key from the Google Cloud Console and set it as GOOGLE_API_KEY.
+Gemini model: If gemini-2.5-pro is not available, use  gemini-2.0-flash or others
 
 Service account: For Vision, Document AI, and BigQuery, a service account key is required. Ensure it has the necessary roles.
 
-Scraper: The extracted JSON is large (~785 airports). Uploading to BigQuery may take a few minutes.
+Scraper: The extracted JSON is large (~785 airports), it will take hours to have all the lounge details. Uploading to BigQuery may take a few minutes.
 
 
